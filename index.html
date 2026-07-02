@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Tran Minh Huy — Computer Science Researcher</title>
+<meta name="description" content="Tran Minh Huy — Computer Science undergraduate at HCMUT researching computer vision, multimodal retrieval, and 3D/4D scene reconstruction." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%230b1220' stroke='%237dd3fc' stroke-width='4'/%3E%3Ctext x='50' y='66' font-size='52' text-anchor='middle' fill='%237dd3fc' font-family='Georgia,serif'%3EH%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #07090f;
+    --bg-alt: #0c1119;
+    --panel: rgba(255,255,255,0.03);
+    --panel-border: rgba(255,255,255,0.08);
+    --ink: #e9edf5;
+    --ink-dim: #97a2b8;
+    --ink-dimmer: #616d84;
+    --accent: #8fc9ff;
+    --accent2: #c9a8ff;
+    --accent3: #7ee6c0;
+    --gold: #e8c47a;
+    --serif: 'Fraunces', Georgia, serif;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+    --maxw: 1120px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--sans); font-weight:400; line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--accent); color:#07090f;}
+
+  /* ---------- background canvas ---------- */
+  #bg-canvas{position:fixed; inset:0; z-index:0; opacity:.55; pointer-events:none;}
+  .grain{position:fixed; inset:0; z-index:1; pointer-events:none; opacity:.035;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .glow-orb{position:fixed; border-radius:50%; filter:blur(90px); z-index:0; pointer-events:none;}
+  .glow-orb.o1{width:520px;height:520px; top:-120px; left:-140px; background:radial-gradient(circle, rgba(143,201,255,.20), transparent 70%); animation: drift1 26s ease-in-out infinite;}
+  .glow-orb.o2{width:480px;height:480px; top:30%; right:-160px; background:radial-gradient(circle, rgba(201,168,255,.16), transparent 70%); animation: drift2 32s ease-in-out infinite;}
+  .glow-orb.o3{width:420px;height:420px; bottom:-140px; left:20%; background:radial-gradient(circle, rgba(126,230,192,.14), transparent 70%); animation: drift1 22s ease-in-out infinite reverse;}
+  @keyframes drift1{0%,100%{transform:translate(0,0);}50%{transform:translate(40px,60px);}}
+  @keyframes drift2{0%,100%{transform:translate(0,0);}50%{transform:translate(-50px,40px);}}
+
+  main, header, footer, section{position:relative; z-index:2;}
+
+  a{color:var(--accent); text-decoration:none;}
+  a:hover{text-decoration:underline;}
+
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 28px;}
+
+  /* ---------- nav ---------- */
+  nav.topnav{
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    backdrop-filter:blur(14px) saturate(140%);
+    background:rgba(7,9,15,.55);
+    border-bottom:1px solid rgba(255,255,255,.06);
+    transition:border-color .3s, background .3s;
+  }
+  .navrow{display:flex; align-items:center; justify-content:space-between; padding:14px 28px; max-width:var(--maxw); margin:0 auto;}
+  .brand{font-family:var(--serif); font-weight:600; font-size:19px; letter-spacing:.02em; color:var(--ink); display:flex; align-items:center; gap:10px;}
+  .brand .dot{width:8px;height:8px;border-radius:50%;background:var(--accent3); box-shadow:0 0 10px var(--accent3); animation:pulse 2.4s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1; transform:scale(1);}50%{opacity:.4; transform:scale(.7);}}
+  .navlinks{display:flex; gap:26px; font-size:13.5px; letter-spacing:.02em;}
+  .navlinks a{color:var(--ink-dim); position:relative; padding:4px 0; text-decoration:none; text-transform:uppercase; font-weight:500; font-size:12px; letter-spacing:.09em;}
+  .navlinks a::after{content:''; position:absolute; left:0; bottom:-2px; width:0; height:1px; background:var(--accent); transition:width .3s;}
+  .navlinks a:hover{color:var(--ink);}
+  .navlinks a:hover::after{width:100%;}
+  .navlinks a.active{color:var(--accent);}
+  #navToggle{display:none;}
+
+  /* ---------- hero ---------- */
+  header.hero{
+    min-height:100svh; display:flex; flex-direction:column; justify-content:center;
+    padding:140px 0 80px;
+  }
+  .kicker{
+    font-family:var(--mono); font-size:12.5px; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--accent3); margin-bottom:22px; opacity:0; animation:fadeUp .9s .1s ease forwards;
+    display:flex; align-items:center; gap:10px;
+  }
+  .kicker .line{width:36px; height:1px; background:var(--accent3);}
+  h1.title{
+    font-family:var(--serif); font-weight:600; font-size:clamp(40px,7vw,84px);
+    line-height:1.02; margin:0 0 18px; letter-spacing:-.01em;
+    opacity:0; animation:fadeUp 1s .25s ease forwards;
+  }
+  h1.title em{font-style:italic; font-weight:500; background:linear-gradient(100deg,var(--accent),var(--accent2) 60%,var(--gold)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .subtitle{
+    font-size:clamp(16px,2.1vw,21px); color:var(--ink-dim); max-width:640px; font-weight:300;
+    opacity:0; animation:fadeUp 1s .4s ease forwards;
+  }
+  .subtitle b{color:var(--ink); font-weight:600;}
+  .hero-meta{
+    margin-top:38px; display:flex; flex-wrap:wrap; gap:14px;
+    opacity:0; animation:fadeUp 1s .55s ease forwards;
+  }
+  .chip{
+    font-family:var(--mono); font-size:12.5px; padding:8px 14px; border-radius:100px;
+    border:1px solid var(--panel-border); color:var(--ink-dim); background:var(--panel);
+    display:flex; align-items:center; gap:7px; transition:.25s;
+  }
+  .chip:hover{border-color:var(--accent); color:var(--ink); transform:translateY(-2px);}
+  .hero-cta{margin-top:44px; display:flex; gap:16px; flex-wrap:wrap; opacity:0; animation:fadeUp 1s .7s ease forwards;}
+  .btn{
+    font-family:var(--sans); font-weight:600; font-size:14px; padding:13px 26px; border-radius:8px;
+    display:inline-flex; align-items:center; gap:8px; transition:.28s cubic-bezier(.2,.8,.2,1); text-decoration:none;
+    letter-spacing:.01em;
+  }
+  .btn-primary{background:var(--ink); color:#07090f;}
+  .btn-primary:hover{background:var(--accent); transform:translateY(-3px); box-shadow:0 12px 24px -8px rgba(143,201,255,.4); text-decoration:none;}
+  .btn-ghost{border:1px solid var(--panel-border); color:var(--ink);}
+  .btn-ghost:hover{border-color:var(--accent); color:var(--accent); transform:translateY(-3px); text-decoration:none;}
+
+  .scroll-cue{position:absolute; bottom:34px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--ink-dimmer); font-family:var(--mono); font-size:10.5px; letter-spacing:.15em; text-transform:uppercase; animation:fadeUp 1s 1s ease forwards; opacity:0;}
+  .scroll-cue .stick{width:1px; height:34px; background:linear-gradient(var(--ink-dimmer),transparent); animation:scrollDown 1.8s ease-in-out infinite;}
+  @keyframes scrollDown{0%{transform:scaleY(0); transform-origin:top;}50%{transform:scaleY(1); transform-origin:top;}51%{transform-origin:bottom;}100%{transform:scaleY(0); transform-origin:bottom;}}
+
+  @keyframes fadeUp{from{opacity:0; transform:translateY(22px);} to{opacity:1; transform:translateY(0);}}
+
+  /* ---------- section framework ---------- */
+  section{padding:120px 0;}
+  section.tight{padding:80px 0;}
+  .section-head{margin-bottom:56px; max-width:640px;}
+  .eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:.2em; text-transform:uppercase; color:var(--accent); margin-bottom:14px; display:block;}
+  .section-head h2{font-family:var(--serif); font-size:clamp(30px,4vw,46px); font-weight:600; margin:0 0 14px; line-height:1.1;}
+  .section-head p{color:var(--ink-dim); font-size:16px; max-width:560px;}
+
+  .reveal{opacity:0; transform:translateY(36px); transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1);}
+  .reveal.in{opacity:1; transform:translateY(0);}
+  .reveal.d1{transition-delay:.08s;} .reveal.d2{transition-delay:.16s;} .reveal.d3{transition-delay:.24s;} .reveal.d4{transition-delay:.32s;} .reveal.d5{transition-delay:.4s;}
+
+  hr.rule{border:none; border-top:1px solid var(--panel-border); margin:0;}
+
+  /* ---------- about ---------- */
+  .about-grid{display:grid; grid-template-columns:1.1fr .9fr; gap:64px; align-items:start;}
+  .about-grid p{color:var(--ink-dim); font-size:16.5px; margin:0 0 18px;}
+  .about-grid p b, .about-grid p strong{color:var(--ink); font-weight:600;}
+  .stat-card{border:1px solid var(--panel-border); background:var(--panel); border-radius:14px; padding:22px; margin-bottom:14px; transition:.3s;}
+  .stat-card:hover{border-color:var(--accent); transform:translateX(4px);}
+  .stat-card .num{font-family:var(--serif); font-size:30px; color:var(--accent); font-weight:600;}
+  .stat-card .lbl{font-size:12.5px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:.08em; margin-top:2px;}
+
+  /* ---------- timeline (experience/education) ---------- */
+  .timeline{position:relative; padding-left:36px; border-left:1px solid var(--panel-border);}
+  .tl-item{position:relative; padding-bottom:46px;}
+  .tl-item:last-child{padding-bottom:0;}
+  .tl-dot{position:absolute; left:-41px; top:4px; width:11px; height:11px; border-radius:50%; background:var(--bg); border:2px solid var(--accent); transition:.3s;}
+  .tl-item.in .tl-dot{box-shadow:0 0 0 5px rgba(143,201,255,.14);}
+  .tl-date{font-family:var(--mono); font-size:12px; color:var(--accent3); letter-spacing:.05em; margin-bottom:6px;}
+  .tl-item h3{font-family:var(--serif); font-size:21px; font-weight:600; margin:0 0 4px;}
+  .tl-item .tl-org{color:var(--ink-dim); font-size:14px; margin-bottom:10px; font-style:italic;}
+  .tl-item ul{margin:8px 0 0; padding-left:18px; color:var(--ink-dim); font-size:14.5px;}
+  .tl-item li{margin-bottom:6px;}
+  .tl-item .grade-pills{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px;}
+  .tl-item .grade-pills span{font-family:var(--mono); font-size:11.5px; padding:4px 10px; border-radius:6px; background:rgba(143,201,255,.08); border:1px solid rgba(143,201,255,.18); color:var(--accent);}
+
+  /* ---------- skills ---------- */
+  .skill-cols{display:grid; grid-template-columns:repeat(4,1fr); gap:28px;}
+  .skill-col h4{font-family:var(--mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.14em; color:var(--accent3); margin:0 0 16px;}
+  .skill-col ul{list-style:none; margin:0; padding:0;}
+  .skill-col li{color:var(--ink-dim); font-size:14.5px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.05); transition:.25s; cursor:default;}
+  .skill-col li:hover{color:var(--ink); padding-left:6px; border-color:rgba(255,255,255,.15);}
+
+  /* ---------- projects ---------- */
+  .proj-list{display:flex; flex-direction:column; gap:2px;}
+  .proj{
+    display:grid; grid-template-columns:100px 1fr; gap:32px;
+    padding:38px 22px; border-radius:16px; border:1px solid transparent;
+    transition:.4s cubic-bezier(.2,.7,.2,1); cursor:default; position:relative; overflow:hidden;
+  }
+  .proj::before{content:''; position:absolute; inset:0; background:linear-gradient(120deg, rgba(143,201,255,.06), rgba(201,168,255,.04)); opacity:0; transition:opacity .4s;}
+  .proj:hover{border-color:var(--panel-border); background:rgba(255,255,255,.015);}
+  .proj:hover::before{opacity:1;}
+  .proj-idx{font-family:var(--mono); font-size:13px; color:var(--ink-dimmer); padding-top:4px;}
+  .proj-body h3{font-family:var(--serif); font-size:25px; font-weight:600; margin:0 0 6px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
+  .proj-date{font-family:var(--mono); font-size:11.5px; color:var(--ink-dimmer); font-weight:400;}
+  .proj-body p.desc{color:var(--ink-dim); font-size:15px; margin:10px 0 14px; max-width:760px;}
+  .tag-row{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:6px;}
+  .tag{font-family:var(--mono); font-size:11px; padding:4px 10px; border-radius:100px; border:1px solid var(--panel-border); color:var(--ink-dim);}
+  .proj-links{margin-top:14px; display:flex; gap:18px;}
+  .proj-links a{font-size:13px; font-weight:600; display:inline-flex; align-items:center; gap:6px;}
+
+  /* ---------- publications ---------- */
+  .pub-card{
+    border:1px solid var(--panel-border); border-radius:16px; padding:32px; background:var(--panel);
+    position:relative; overflow:hidden;
+  }
+  .pub-card::after{content:'"'; position:absolute; right:20px; top:-30px; font-family:var(--serif); font-size:160px; color:rgba(255,255,255,.02); line-height:1;}
+  .pub-tag{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.12em; color:var(--gold); border:1px solid rgba(232,196,122,.3); background:rgba(232,196,122,.06); padding:4px 10px; border-radius:100px; display:inline-block; margin-bottom:16px;}
+  .pub-card h3{font-family:var(--serif); font-size:22px; font-weight:600; margin:0 0 10px; line-height:1.3;}
+  .pub-authors{color:var(--ink-dim); font-size:14px; margin-bottom:8px;}
+  .pub-authors b{color:var(--ink);}
+  .pub-venue{font-style:italic; color:var(--ink-dimmer); font-size:13.5px; margin-bottom:16px;}
+  .pub-abstract{color:var(--ink-dim); font-size:14px; border-left:2px solid var(--panel-border); padding-left:16px; margin:16px 0;}
+
+  /* ---------- awards ---------- */
+  .award-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:18px;}
+  .award-card{border:1px solid var(--panel-border); border-radius:14px; padding:24px; background:var(--panel); display:flex; gap:16px; align-items:flex-start; transition:.3s;}
+  .award-card:hover{transform:translateY(-4px); border-color:var(--gold);}
+  .award-icon{font-size:26px; flex-shrink:0;}
+  .award-card h4{margin:0 0 4px; font-family:var(--serif); font-size:17.5px; font-weight:600;}
+  .award-card p{margin:0; color:var(--ink-dim); font-size:13.5px;}
+
+  /* ---------- gallery ---------- */
+  .gallery{display:grid; grid-template-columns:repeat(6,1fr); grid-auto-rows:130px; gap:12px;}
+  .gitem{position:relative; overflow:hidden; border-radius:12px; cursor:zoom-in; border:1px solid var(--panel-border);}
+  .gitem img{width:100%; height:100%; object-fit:cover; display:block; transition:transform .6s cubic-bezier(.2,.7,.2,1), filter .5s;
+    filter:grayscale(45%) brightness(.85) contrast(1.02);}
+  .gitem:hover img{transform:scale(1.08); filter:grayscale(0%) brightness(1);}
+  .gitem .gcap{position:absolute; left:0; right:0; bottom:0; padding:10px 12px 8px; font-size:11.5px; font-family:var(--mono);
+    background:linear-gradient(to top, rgba(0,0,0,.85), transparent); color:#fff; opacity:0; transform:translateY(8px); transition:.35s;}
+  .gitem:hover .gcap{opacity:1; transform:translateY(0);}
+  .gitem.g-a{grid-column:span 3; grid-row:span 2;}
+  .gitem.g-b{grid-column:span 3; grid-row:span 2;}
+  .gitem.g-c{grid-column:span 2; grid-row:span 1;}
+  .gitem.g-d{grid-column:span 2; grid-row:span 1;}
+  .gitem.g-e{grid-column:span 2; grid-row:span 1;}
+  .gitem.g-f{grid-column:span 3; grid-row:span 2;}
+  .gitem.g-g{grid-column:span 3; grid-row:span 2;}
+
+  .lightbox{position:fixed; inset:0; z-index:200; background:rgba(4,5,9,.94); backdrop-filter:blur(6px);
+    display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .35s; flex-direction:column; padding:40px;}
+  .lightbox.open{opacity:1; pointer-events:auto;}
+  .lightbox img{max-width:min(90vw,1100px); max-height:76vh; border-radius:10px; box-shadow:0 30px 80px rgba(0,0,0,.6); transform:scale(.96); transition:transform .35s;}
+  .lightbox.open img{transform:scale(1);}
+  .lightbox .lcap{color:var(--ink-dim); font-family:var(--mono); font-size:13px; margin-top:18px; text-align:center;}
+  .lightbox .lclose{position:absolute; top:26px; right:32px; color:var(--ink); font-size:28px; cursor:pointer; line-height:1; opacity:.7; transition:.2s;}
+  .lightbox .lclose:hover{opacity:1; transform:rotate(90deg);}
+
+  /* ---------- extras (scholarships/languages/etc) ---------- */
+  .extra-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:24px;}
+  .extra-card{border:1px solid var(--panel-border); border-radius:14px; padding:26px; background:var(--panel);}
+  .extra-card h4{font-family:var(--mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.13em; color:var(--accent); margin:0 0 16px;}
+  .extra-card ul{margin:0; padding-left:0; list-style:none;}
+  .extra-card li{color:var(--ink-dim); font-size:14px; margin-bottom:10px; padding-left:16px; position:relative;}
+  .extra-card li::before{content:'—'; position:absolute; left:0; color:var(--ink-dimmer);}
+  .extra-card li b{color:var(--ink); font-weight:500;}
+
+  /* ---------- contact / footer ---------- */
+  footer{padding:110px 0 50px; border-top:1px solid var(--panel-border); margin-top:40px; text-align:center;}
+  footer h2{font-family:var(--serif); font-size:clamp(32px,5vw,56px); font-weight:600; margin:0 0 20px;}
+  footer h2 em{font-style:italic; color:var(--accent);}
+  .footer-links{display:flex; justify-content:center; gap:18px; flex-wrap:wrap; margin:34px 0;}
+  .footer-meta{color:var(--ink-dimmer); font-size:13px; font-family:var(--mono); margin-top:60px;}
+  .footer-meta a{color:var(--ink-dimmer);}
+
+  /* ---------- responsive ---------- */
+  @media(max-width:920px){
+    .about-grid{grid-template-columns:1fr; gap:36px;}
+    .skill-cols{grid-template-columns:repeat(2,1fr); gap:26px 20px;}
+    .award-grid{grid-template-columns:1fr;}
+    .extra-grid{grid-template-columns:1fr;}
+    .proj{grid-template-columns:1fr; gap:8px;}
+    .gallery{grid-template-columns:repeat(2,1fr); grid-auto-rows:150px;}
+    .gitem.g-a,.gitem.g-b,.gitem.g-f,.gitem.g-g{grid-column:span 2; grid-row:span 2;}
+    .gitem.g-c,.gitem.g-d,.gitem.g-e{grid-column:span 1; grid-row:span 1;}
+  }
+  @media(max-width:700px){
+    .navlinks{display:none;}
+    section{padding:80px 0;}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<div class="glow-orb o1"></div>
+<div class="glow-orb o2"></div>
+<div class="glow-orb o3"></div>
+<div class="grain"></div>
+
+<nav class="topnav">
+  <div class="navrow">
+    <div class="brand"><span class="dot"></span>Tran Minh Huy</div>
+    <div class="navlinks">
+      <a href="#about">About</a>
+      <a href="#education">Education</a>
+      <a href="#experience">Experience</a>
+      <a href="#projects">Projects</a>
+      <a href="#publications">Publications</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker"><span class="line"></span>Computer Science · HCMUT (Japan-Oriented Program)</div>
+    <h1 class="title">Tran Minh Huy<br><em>Computer Vision</em> &amp; Multimodal<br>Learning Research.</h1>
+    <p class="subtitle">Undergraduate researcher in <b>Computer Science</b> at Ho Chi Minh City University of Technology (HCMUT), working on <b>computer vision</b>, <b>multimodal retrieval</b>, and <b>dynamic 3D/4D scene reconstruction</b>. Currently Lab Manager at the HCMUT Machine Learning &amp; IoT Lab.</p>
+    <div class="hero-meta">
+      <div class="chip">🎓 GPA 3.2/4.0</div>
+      <div class="chip">🏆 First Prize — Olympic AI HCMC 2025</div>
+      <div class="chip">📍 Ho Chi Minh City, Vietnam</div>
+      <div class="chip">🇯🇵 JLPT N3</div>
+    </div>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="Resume_Tran_Minh_Huy.pdf" target="_blank" rel="noopener">↓ Download CV (PDF)</a>
+      <a class="btn btn-ghost" href="mailto:huy.tranminh2005@hcmut.edu.vn">✉ Contact</a>
+      <a class="btn btn-ghost" href="https://github.com/Huyrua27" target="_blank" rel="noopener">⌥ GitHub</a>
+    </div>
+  </div>
+  <div class="scroll-cue"><span>Scroll</span><span class="stick"></span></div>
+</header>
+
+<main>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">01 · Introduction</span>
+        <h2>About</h2>
+      </div>
+      <div class="about-grid">
+        <div class="reveal d1">
+          <p>I am a third-year <strong>Computer Science</strong> undergraduate (Japan-Oriented Program) at <strong>Ho Chi Minh City University of Technology (HCMUT — VNU-HCM)</strong>, pursuing research in artificial intelligence with a focus on <strong>computer vision</strong>, <strong>multimodal retrieval</strong>, and, more recently, <strong>dynamic 3D/4D scene reconstruction</strong>.</p>
+          <p>My research experience spans a multimodal video retrieval system, deep-mutual-learning-based image classification, hybrid filtering for real-time 3D motion tracking, and calibrated 4D Gaussian Splatting for multi-sensor scene reconstruction. I currently serve as <strong>Lab Manager</strong> at the HCMUT EE Machine Learning &amp; IoT Lab and have worked as a teaching assistant for Python and Machine Learning courses.</p>
+          <p>I am committed to rigorous, reproducible research: reading and critically analyzing the literature, reimplementing key methods, and validating ideas through applied projects and competitions.</p>
+        </div>
+        <div class="reveal d2">
+          <div class="stat-card"><div class="num">4+</div><div class="lbl">Research Projects</div></div>
+          <div class="stat-card"><div class="num">2</div><div class="lbl">Publications — SOICT 2025 &amp; ICIC 2026</div></div>
+          <div class="stat-card"><div class="num">2</div><div class="lbl">City-level AI Olympiad Awards</div></div>
+          <div class="stat-card"><div class="num">96%</div><div class="lbl">Accuracy — Mushroom Classification</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule wrap">
+
+  <!-- EDUCATION -->
+  <section id="education">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">02 · Education</span>
+        <h2>Education</h2>
+      </div>
+      <div class="timeline">
+        <div class="tl-item reveal">
+          <div class="tl-dot"></div>
+          <div class="tl-date">Sep. 2023 — Present</div>
+          <h3>Ho Chi Minh City University of Technology (HCMUT — VNU-HCM)</h3>
+          <div class="tl-org">Bachelor of Computer Science, Japan-Oriented Program · GPA 3.2/4.0</div>
+          <div class="grade-pills">
+            <span>Computer Graphics — 9.3</span>
+            <span>Machine Learning — 9.0</span>
+            <span>E-commerce — 9.0</span>
+            <span>Deep Learning &amp; Applications — 8.6</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule wrap">
+
+  <!-- EXPERIENCE -->
+  <section id="experience">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">03 · Experience</span>
+        <h2>Experience</h2>
+      </div>
+      <div class="timeline">
+        <div class="tl-item reveal">
+          <div class="tl-dot"></div>
+          <div class="tl-date">Jan. 2026 — Present</div>
+          <h3>Lab Manager</h3>
+          <div class="tl-org">HCMUT Machine Learning &amp; IoT Lab · Ho Chi Minh City</div>
+          <ul><li>Coordinate research activities and project direction for the ML &amp; IoT Lab.</li></ul>
+        </div>
+        <div class="tl-item reveal d1">
+          <div class="tl-dot"></div>
+          <div class="tl-date">Jul. 2025 — Aug. 2025</div>
+          <h3>Teaching Assistant — Python &amp; Machine Learning Course</h3>
+          <div class="tl-org">HCMUT EE Machine Learning &amp; IoT Lab · Ho Chi Minh City</div>
+          <ul>
+            <li>Assisted in teaching Python programming and core Machine Learning concepts to high-school and undergraduate students.</li>
+            <li>Supported assignments and student ML projects.</li>
+            <li>Mentored student capstone projects, guiding teams through full ML development cycles.</li>
+          </ul>
+        </div>
+        <div class="tl-item reveal d2">
+          <div class="tl-dot"></div>
+          <div class="tl-date">Nov. 21–23, 2025</div>
+          <h3>Winter School on Quantum Computing</h3>
+          <div class="tl-org">Organized by the Vietnam Institute for Advanced Study in Mathematics (VIASM) at HCMUT, VNU-HCM</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule wrap">
+
+  <!-- SKILLS -->
+  <section id="skills" class="tight">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">04 · Skills</span>
+        <h2>Technical Skills</h2>
+      </div>
+      <div class="skill-cols">
+        <div class="skill-col reveal">
+          <h4>Languages</h4>
+          <ul><li>Python</li><li>C++</li><li>Java</li></ul>
+        </div>
+        <div class="skill-col reveal d1">
+          <h4>Frameworks</h4>
+          <ul><li>PyTorch</li><li>TensorFlow</li></ul>
+        </div>
+        <div class="skill-col reveal d2">
+          <h4>Libraries</h4>
+          <ul><li>scikit-learn</li><li>pandas / NumPy</li><li>Matplotlib / seaborn</li><li>OpenCV</li><li>Ultralytics (YOLO)</li></ul>
+        </div>
+        <div class="skill-col reveal d3">
+          <h4>Tools</h4>
+          <ul><li>Git</li><li>Google Colab</li><li>VS Code</li><li>Jira</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule wrap">
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">05 · Research &amp; Projects</span>
+        <h2>Projects</h2>
+        <p>Four projects tracing a path from classical computer vision to multimodal retrieval and real-time dynamic scene reconstruction.</p>
+      </div>
+      <div class="proj-list">
+
+        <div class="proj reveal">
+          <div class="proj-idx">01</div>
+          <div class="proj-body">
+            <h3>Multimodal Video Retrieval System <span class="proj-date">Jun. 2025 – Dec. 2025</span></h3>
+            <p class="desc">A multimodal video retrieval system: keyframe extraction with TransNetV2, semantic embeddings via BEiT-3/CLIP, object information via YOLO/Faster R-CNN, and OCR via PaddleOCR/EasyOCR/CRAFT. Fast retrieval with FAISS (cosine similarity) and MongoDB Atlas Fuzzy Search; query refinement with the Gemini LLM; multimodal and temporal querying algorithms for precise video moment localization.</p>
+            <div class="tag-row"><span class="tag">TransNetV2</span><span class="tag">CLIP / BEiT-3</span><span class="tag">FAISS</span><span class="tag">MongoDB Atlas</span><span class="tag">Gemini LLM</span><span class="tag">OCR</span></div>
+          </div>
+        </div>
+
+        <div class="proj reveal d1">
+          <div class="proj-idx">02</div>
+          <div class="proj-body">
+            <h3>Mushroom Images Classification <span class="proj-date">Feb. 2025 – Apr. 2025</span></h3>
+            <p class="desc">In-depth exploratory data analysis to extract statistical insights and class characteristics, guiding preprocessing and architecture choices. Trained ResNet, EfficientNet, and Vision Transformer (ViT) with Early Stopping, Automatic Mixed Precision, and learning-rate scheduling; combined multi-model predictions via Deep Mutual Learning — attaining approximately <b>96% accuracy</b> on the private test set.</p>
+            <div class="tag-row"><span class="tag">ResNet / EfficientNet / ViT</span><span class="tag">Deep Mutual Learning</span><span class="tag">AMP</span><span class="tag">96% Accuracy</span></div>
+          </div>
+        </div>
+
+        <div class="proj reveal d2">
+          <div class="proj-idx">03</div>
+          <div class="proj-body">
+            <h3>A Hybrid Filtering Approach for Enhanced 3D Motion Tracking <span class="proj-date">Sep. 2025 – Dec. 2025 · Published, ICIC 2026</span></h3>
+            <p class="desc">An adaptive hybrid filtering framework that dynamically combines low-pass, Kalman, and 1-Euro filters based on real-time motion-state classification (static, slow, fast). Integrates global trajectory estimation for physical plausibility, including ground-plane alignment, metric scale recovery, and footskate correction. Achieves a <b>30.9%</b> reduction in jitter, minimal temporal lag (0.033 s), and real-time performance at approximately 293 FPS on complex martial-arts motion data.</p>
+            <div class="tag-row"><span class="tag">Kalman Filter</span><span class="tag">1-Euro Filter</span><span class="tag">Markerless Motion Capture</span><span class="tag">Real-time · 293 FPS</span></div>
+          </div>
+        </div>
+
+        <div class="proj reveal d3">
+          <div class="proj-idx">04</div>
+          <div class="proj-body">
+            <h3>Photometric-consistent 4D Gaussian Splatting for Multimodal Sensor Alignment <span class="proj-date">2026 · Research Manuscript</span></h3>
+            <p class="desc">Co-first author. Proposes the <b>Geometric Confidence Score (GCS)</b> — a per-pixel geometric confidence signal derived from temporally aggregated LiDAR data — enabling metric-scale 4D reconstruction of dynamic multi-person scenes from an asymmetric commodity rig of five static RGB cameras and one hand-held LiDAR phone. GCS down-weights dynamic regions in the photometric loss without any tracking or segmentation, and drives a confidence-weighted opacity regularizer that removes floaters. Outperforms 3DGS-Calib and image-only 4DGS baselines across all reported calibration, geometry, and appearance metrics.</p>
+            <div class="tag-row"><span class="tag">4D Gaussian Splatting</span><span class="tag">LiDAR Fusion</span><span class="tag">Sensor Calibration</span><span class="tag">COLMAP / SfM</span></div>
+            <div class="proj-links"><a href="Photometric_4DGS_Paper.pdf" target="_blank" rel="noopener">↗ Read manuscript (PDF)</a></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule wrap">
+
+  <!-- PUBLICATIONS -->
+  <section id="publications">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">06 · Publications</span>
+        <h2>Publications</h2>
+      </div>
+      <div class="pub-card reveal">
+        <span class="pub-tag">SOICT 2025</span>
+        <h3>Enhanced Multimodal Video Retrieval System: Integrating Query Expansion and Cross-modal Temporal Event Retrieval</h3>
+        <p class="pub-authors">Van-Thinh Vo, Minh-Khoi Nguyen, <b>Minh-Huy Tran</b>, Anh-Quan Nguyen-Tran, Duy-Tan Nguyen, Khanh-Loi Nguyen, Anh-Minh Phan</p>
+        <p class="pub-venue">The 14th International Symposium on Information and Communication Technology — SOICT 2025</p>
+        <p class="pub-abstract">Improves multimodal video retrieval through query expansion and cross-modal temporal event retrieval, increasing moment-localization accuracy in long-form video.</p>
+      </div>
+      <div class="pub-card reveal d1" style="margin-top:22px;">
+        <span class="pub-tag">ICIC 2026</span>
+        <h3>A Hybrid Filtering Approach for Enhanced 3D Motion Tracking</h3>
+        <p class="pub-authors"><b>Minh-Huy Tran</b>, et al.</p>
+        <p class="pub-venue">International Conference on Intelligent Computing — ICIC 2026</p>
+        <p class="pub-abstract">Introduces an adaptive hybrid filtering framework — combining low-pass, Kalman, and 1-Euro filters via real-time motion-state classification — for robust markerless 3D motion tracking, achieving a 30.9% reduction in jitter with real-time performance (~293 FPS).</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule wrap">
+
+  <!-- AWARDS -->
+  <section id="awards" class="tight">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">07 · Awards</span>
+        <h2>Awards &amp; Achievements</h2>
+      </div>
+      <div class="award-grid">
+        <div class="award-card reveal"><div class="award-icon">🥇</div><div><h4>First Prize — Olympic AI HCMC 2025</h4><p>Olympiad in Artificial Intelligence at Ho Chi Minh City (OAI HCMC 2025)</p></div></div>
+        <div class="award-card reveal d1"><div class="award-icon">🏅</div><div><h4>Finalist — AI Challenge HCMC 2025</h4><p>Ho Chi Minh City Artificial Intelligence Challenge 2025</p></div></div>
+        <div class="award-card reveal d2"><div class="award-icon">🎖️</div><div><h4>Merit-based Scholarship</h4><p>Ho Chi Minh University of Technology (VNU-HCM)</p></div></div>
+        <div class="award-card reveal d3"><div class="award-icon">🌏</div><div><h4>Japan Create International Scholarship</h4><p>International scholarship, Japan-Oriented Program</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule wrap">
+
+  <!-- GALLERY -->
+  <section id="gallery">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">08 · Gallery</span>
+        <h2>Moments &amp; Milestones</h2>
+        <p>A few highlights from competitions, conferences, and teaching activities.</p>
+      </div>
+      <div class="gallery reveal">
+        <div class="gitem g-a" data-full="AIC.jpg"><img src="AIC.jpg" alt="AI Challenge HCMC 2025 finals" loading="lazy"><div class="gcap">AI Challenge HCMC 2025 — Finals, with the ML &amp; IoT Lab team</div></div>
+        <div class="gitem g-b" data-full="OAI.jpg"><img src="OAI.jpg" alt="Olympic AI HCMC 2025 award ceremony" loading="lazy"><div class="gcap">Olympic AI HCMC 2025 — First Prize Award Ceremony</div></div>
+        <div class="gitem g-c" data-full="SOICT1.jpg"><img src="SOICT1.jpg" alt="SOICT 2025 with the ML IoT Lab team" loading="lazy"><div class="gcap">SOICT 2025 — with the ML &amp; IoT Lab team, HUST Hanoi</div></div>
+        <div class="gitem g-d" data-full="SOICT2.jpg"><img src="SOICT2.jpg" alt="Presenting research poster at SOICT 2025" loading="lazy"><div class="gcap">Presenting research poster — SOICT 2025</div></div>
+        <div class="gitem g-e" data-full="SummerCourse.jpg"><img src="SummerCourse.jpg" alt="Teaching Python & Machine Learning course" loading="lazy"><div class="gcap">Teaching Assistant — Python &amp; Machine Learning Course</div></div>
+        <div class="gitem g-f" data-full="Vinhdanh1.jpg"><img src="Vinhdanh1.jpg" alt="HCMUT Honor Ceremony" loading="lazy"><div class="gcap">HCMUT Honor Ceremony — Award recipients, Academic &amp; Technology Competitions 2025</div></div>
+        <div class="gitem g-g" data-full="Vinhdanh2.JPG"><img src="Vinhdanh2.JPG" alt="HCMUT Honor Ceremony" loading="lazy"><div class="gcap">HCMUT Honor Ceremony — Award recipients, Academic &amp; Technology Competitions 2025</div></div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule wrap">
+
+  <!-- EXTRAS -->
+  <section id="extras" class="tight">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">09 · Additional Information</span>
+        <h2>Scholarships, Languages &amp; More</h2>
+      </div>
+      <div class="extra-grid">
+        <div class="extra-card reveal">
+          <h4>Scholarships</h4>
+          <ul>
+            <li><b>Japan Create International Scholarship</b></li>
+            <li><b>Merit-based Scholarship</b>, HCMUT (VNU-HCM)</li>
+            <li><b>OISP Scholarship</b>, HCMUT (VNU-HCM)</li>
+          </ul>
+        </div>
+        <div class="extra-card reveal d1">
+          <h4>Languages &amp; Online Courses</h4>
+          <ul>
+            <li><b>Japanese</b> — JLPT N3</li>
+            <li><b>CS231n</b> — Deep Learning for Computer Vision (Stanford)</li>
+            <li><b>CS234</b> — Reinforcement Learning (Stanford)</li>
+          </ul>
+        </div>
+        <div class="extra-card reveal d2">
+          <h4>Soft Skills</h4>
+          <ul>
+            <li>Proficient in reading and analyzing research papers</li>
+            <li>Strong communication, presentation, and teamwork skills</li>
+            <li>Responsible and proactive working attitude</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer id="contact">
+  <div class="wrap">
+    <span class="eyebrow reveal">10 · Contact</span>
+    <h2 class="reveal">Let's talk about <em>research</em>,<br>collaboration, or new ideas.</h2>
+    <div class="footer-links reveal">
+      <a class="btn btn-primary" href="mailto:huy.tranminh2005@hcmut.edu.vn">✉ huy.tranminh2005@hcmut.edu.vn</a>
+      <a class="btn btn-ghost" href="tel:+84937923907">📞 (+84) 937 923 907</a>
+      <a class="btn btn-ghost" href="https://github.com/Huyrua27" target="_blank" rel="noopener">⌥ github.com/Huyrua27</a>
+      <a class="btn btn-ghost" href="https://www.facebook.com/tran.huy.2705" target="_blank" rel="noopener">📘 Facebook</a>
+    </div>
+    <div class="footer-meta">© 2026 Tran Minh Huy · Ho Chi Minh City, Vietnam.</div>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox">
+  <span class="lclose" id="lclose">&times;</span>
+  <img id="lightboxImg" src="" alt="">
+  <div class="lcap" id="lightboxCap"></div>
+</div>
+
+<script>
+// ---------- scroll reveal ----------
+const revealEls = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+},{threshold:.14, rootMargin:'0px 0px -60px 0px'});
+revealEls.forEach(el=>io.observe(el));
+
+// timeline dots
+document.querySelectorAll('.tl-item').forEach(el=>{
+  el.classList.add('reveal');
+  const io2 = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); } });
+  },{threshold:.4});
+  io2.observe(el);
+});
+
+// ---------- nav active link ----------
+const sections = document.querySelectorAll('main section, footer');
+const navLinks = document.querySelectorAll('.navlinks a');
+const navIo = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    const id = entry.target.getAttribute('id');
+    const link = document.querySelector('.navlinks a[href="#'+id+'"]');
+    if(!link) return;
+    if(entry.isIntersecting){ navLinks.forEach(l=>l.classList.remove('active')); link.classList.add('active'); }
+  });
+},{rootMargin:'-40% 0px -50% 0px'});
+sections.forEach(s=>{ if(s.id) navIo.observe(s); });
+
+// ---------- lightbox ----------
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+const lightboxCap = document.getElementById('lightboxCap');
+document.querySelectorAll('.gitem').forEach(item=>{
+  item.addEventListener('click', ()=>{
+    lightboxImg.src = item.getAttribute('data-full');
+    lightboxCap.textContent = item.querySelector('.gcap')?.textContent || '';
+    lightbox.classList.add('open');
+  });
+});
+document.getElementById('lclose').addEventListener('click', ()=>lightbox.classList.remove('open'));
+lightbox.addEventListener('click', (e)=>{ if(e.target===lightbox) lightbox.classList.remove('open'); });
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') lightbox.classList.remove('open'); });
+
+// ---------- constellation background canvas ----------
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let w,h,particles;
+function resize(){
+  w = canvas.width = window.innerWidth;
+  h = canvas.height = window.innerHeight;
+}
+function initParticles(){
+  const count = Math.min(70, Math.floor((w*h)/22000));
+  particles = Array.from({length:count}, ()=>({
+    x: Math.random()*w, y: Math.random()*h,
+    vx: (Math.random()-.5)*0.18, vy: (Math.random()-.5)*0.18,
+    r: Math.random()*1.4+0.4
+  }));
+}
+resize(); initParticles();
+window.addEventListener('resize', ()=>{ resize(); initParticles(); });
+
+function tick(){
+  ctx.clearRect(0,0,w,h);
+  for(let i=0;i<particles.length;i++){
+    const p = particles[i];
+    p.x += p.vx; p.y += p.vy;
+    if(p.x<0||p.x>w) p.vx*=-1;
+    if(p.y<0||p.y>h) p.vy*=-1;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle = 'rgba(143,201,255,0.55)';
+    ctx.fill();
+    for(let j=i+1;j<particles.length;j++){
+      const q = particles[j];
+      const dx=p.x-q.x, dy=p.y-q.y, dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<120){
+        ctx.beginPath();
+        ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y);
+        ctx.strokeStyle = 'rgba(143,201,255,'+(0.12*(1-dist/120))+')';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(tick);
+}
+tick();
+
+// respect reduced motion
+if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+  canvas.style.display='none';
+  document.querySelectorAll('.glow-orb').forEach(o=>o.style.animation='none');
+}
+</script>
+
+</body>
+</html>
